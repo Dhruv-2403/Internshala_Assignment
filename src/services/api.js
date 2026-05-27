@@ -2,12 +2,6 @@ import axios from 'axios';
 import { mockInternshipsData } from './mockData';
 
 const API_BASE_URL = 'https://internshala.com';
-
-/**
- * Fetch internships from Internshala API
- * Falls back to cached data if CORS blocks the request
- * @returns {Promise<Array>} Array of internship objects
- */
 export const fetchInternships = async () => {
   try {
     // Fetch directly from Internshala API
