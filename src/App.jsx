@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import Navbar from './components/Navbar/Navbar';
 import FilterSidebar from './components/FilterSidebar/FilterSidebar';
+import InternshipList from './components/InternshipList/InternshipList';
+import { useInternships } from './hooks/useInternships';
 import './App.css';
 
 function App() {
+  const { internships, isLoading, error } = useInternships();
+  
   const [filters, setFilters] = useState({
+    profileSearch: '',
+    locationSearch: '',
     profile: [],
     location: [],
     duration: [],
@@ -12,6 +18,7 @@ function App() {
     partTime: false,
     withJobOffer: false,
     fastResponse: false,
+    earlyApplicant: false,
   });
 
   const handleFilterChange = (filterType, value) => {
@@ -23,6 +30,8 @@ function App() {
 
   const handleClearAll = () => {
     setFilters({
+      profileSearch: '',
+      locationSearch: '',
       profile: [],
       location: [],
       duration: [],
@@ -30,6 +39,7 @@ function App() {
       partTime: false,
       withJobOffer: false,
       fastResponse: false,
+      earlyApplicant: false,
     });
   };
 
@@ -41,8 +51,14 @@ function App() {
           filters={filters}
           onFilterChange={handleFilterChange}
           onClearAll={handleClearAll}
+          internships={internships}
         />
-        {/* InternshipList will be added here */}
+        <InternshipList 
+          internships={internships}
+          filters={filters}
+          isLoading={isLoading}
+          error={error}
+        />
       </div>
     </>
   );

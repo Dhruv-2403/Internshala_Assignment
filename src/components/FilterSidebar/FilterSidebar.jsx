@@ -1,177 +1,73 @@
 import { useState } from 'react';
 import './FilterSidebar.css';
 
-const FilterSidebar = ({ filters, onFilterChange, onClearAll }) => {
-  const [expandedSections, setExpandedSections] = useState({
-    profile: true,
-    location: true,
-    duration: true,
-    stipend: true,
-  });
+const FilterSidebar = ({ filters, onFilterChange, onClearAll, internships = [] }) => {
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [profileSearch, setProfileSearch] = useState('');
+  const [locationSearch, setLocationSearch] = useState('');
 
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
+  const handleStipendChange = (value) => {
+    onFilterChange('stipend', { min: parseInt(value), max: 50000 });
   };
 
-  const handleCheckboxChange = (filterType, value) => {
-    const currentValues = filters[filterType] || [];
-    const newValues = currentValues.includes(value)
-      ? currentValues.filter(v => v !== value)
-      : [...currentValues, value];
-    
-    onFilterChange(filterType, newValues);
+  const handleProfileSearch = (e) => {
+    const value = e.target.value;
+    setProfileSearch(value);
+    onFilterChange('profileSearch', value);
   };
 
-  const handleStipendChange = (min, max) => {
-    onFilterChange('stipend', { min, max });
+  const handleLocationSearch = (e) => {
+    const value = e.target.value;
+    setLocationSearch(value);
+    onFilterChange('locationSearch', value);
   };
 
   return (
     <aside className="filter-sidebar">
-      <div className="filter-header">
-        <h2>Filters</h2>
-        <button className="clear-all-btn" onClick={onClearAll}>
-          Clear all
-        </button>
+      {/* Profile Search */}
+      <div className="filter-group">
+        <label className="filter-label">Profile</label>
+        <input 
+          type="text" 
+          placeholder="e.g. Design" 
+          className="filter-input"
+          value={profileSearch}
+          onChange={handleProfileSearch}
+        />
       </div>
 
-      {/* Profile Filter */}
-      <div className="filter-section">
-        <div 
-          className="filter-section-header"
-          onClick={() => toggleSection('profile')}
-        >
-          <h3>Profile</h3>
-          <span className={`arrow ${expandedSections.profile ? 'expanded' : ''}`}>
-            ▼
-          </span>
-        </div>
-        {expandedSections.profile && (
-          <div className="filter-section-content">
-            <div className="filter-search">
-              <input 
-                type="text" 
-                placeholder="e.g. Marketing" 
-                className="filter-search-input"
-              />
-            </div>
-            <div className="filter-options">
-              {['Web Development', 'Marketing', 'Content Writing', 'Graphic Design', 'Data Science', 'Android Development'].map(profile => (
-                <label key={profile} className="filter-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={filters.profile?.includes(profile) || false}
-                    onChange={() => handleCheckboxChange('profile', profile)}
-                  />
-                  <span>{profile}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Location Search */}
+      <div className="filter-group">
+        <label className="filter-label">Location</label>
+        <input 
+          type="text" 
+          placeholder="e.g. Delhi" 
+          className="filter-input"
+          value={locationSearch}
+          onChange={handleLocationSearch}
+        />
       </div>
 
-      {/* Location Filter */}
-      <div className="filter-section">
-        <div 
-          className="filter-section-header"
-          onClick={() => toggleSection('location')}
-        >
-          <h3>Location</h3>
-          <span className={`arrow ${expandedSections.location ? 'expanded' : ''}`}>
-            ▼
-          </span>
-        </div>
-        {expandedSections.location && (
-          <div className="filter-section-content">
-            <div className="filter-search">
-              <input 
-                type="text" 
-                placeholder="e.g. Delhi" 
-                className="filter-search-input"
-              />
-            </div>
-            <div className="filter-options">
-              {['Work from home', 'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Pune', 'Chennai'].map(location => (
-                <label key={location} className="filter-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={filters.location?.includes(location) || false}
-                    onChange={() => handleCheckboxChange('location', location)}
-                  />
-                  <span>{location}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Work from home checkbox */}
+      <div className="filter-group">
+        <label className="filter-checkbox">
+          <input
+            type="checkbox"
+            checked={filters.location?.includes('Work from home') || false}
+            onChange={(e) => {
+              const currentLocations = filters.location || [];
+              const newLocations = e.target.checked 
+                ? [...currentLocations, 'Work from home']
+                : currentLocations.filter(loc => loc !== 'Work from home');
+              onFilterChange('location', newLocations);
+            }}
+          />
+          <span>Work from home</span>
+        </label>
       </div>
 
-      {/* Duration Filter */}
-      <div className="filter-section">
-        <div 
-          className="filter-section-header"
-          onClick={() => toggleSection('duration')}
-        >
-          <h3>Duration</h3>
-          <span className={`arrow ${expandedSections.duration ? 'expanded' : ''}`}>
-            ▼
-          </span>
-        </div>
-        {expandedSections.duration && (
-          <div className="filter-section-content">
-            <div className="filter-options">
-              {['1 Month', '2 Months', '3 Months', '4 Months', '5 Months', '6 Months'].map(duration => (
-                <label key={duration} className="filter-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={filters.duration?.includes(duration) || false}
-                    onChange={() => handleCheckboxChange('duration', duration)}
-                  />
-                  <span>{duration}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Stipend Filter */}
-      <div className="filter-section">
-        <div 
-          className="filter-section-header"
-          onClick={() => toggleSection('stipend')}
-        >
-          <h3>Desired minimum monthly stipend (₹)</h3>
-          <span className={`arrow ${expandedSections.stipend ? 'expanded' : ''}`}>
-            ▼
-          </span>
-        </div>
-        {expandedSections.stipend && (
-          <div className="filter-section-content">
-            <div className="stipend-slider">
-              <input
-                type="range"
-                min="0"
-                max="10000"
-                step="1000"
-                value={filters.stipend?.min || 0}
-                onChange={(e) => handleStipendChange(parseInt(e.target.value), filters.stipend?.max || 10000)}
-                className="slider"
-              />
-              <div className="stipend-value">
-                ₹ {filters.stipend?.min || 0} - ₹ {filters.stipend?.max || 10000}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Additional Filters */}
-      <div className="filter-section">
+      {/* Part-time checkbox */}
+      <div className="filter-group">
         <label className="filter-checkbox">
           <input
             type="checkbox"
@@ -182,27 +78,111 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll }) => {
         </label>
       </div>
 
-      <div className="filter-section">
-        <label className="filter-checkbox">
+      {/* Stipend Slider */}
+      <div className="filter-group">
+        <label className="filter-label">Desired minimum monthly stipend (₹)</label>
+        <div className="stipend-slider-container">
           <input
-            type="checkbox"
-            checked={filters.withJobOffer || false}
-            onChange={() => onFilterChange('withJobOffer', !filters.withJobOffer)}
+            type="range"
+            min="0"
+            max="10000"
+            step="2000"
+            value={filters.stipend?.min || 0}
+            onChange={(e) => handleStipendChange(e.target.value)}
+            className="stipend-slider"
           />
-          <span>Internships with job offer</span>
-        </label>
+          <div className="stipend-labels">
+            <span>0</span>
+            <span>2K</span>
+            <span>4K</span>
+            <span>6K</span>
+            <span>8K</span>
+            <span>10K</span>
+          </div>
+        </div>
       </div>
 
-      <div className="filter-section">
-        <label className="filter-checkbox">
-          <input
-            type="checkbox"
-            checked={filters.fastResponse || false}
-            onChange={() => onFilterChange('fastResponse', !filters.fastResponse)}
-          />
-          <span>Fast response</span>
-        </label>
-      </div>
+      {/* View less filters toggle */}
+      <button 
+        className="view-filters-btn"
+        onClick={() => setShowMoreFilters(!showMoreFilters)}
+      >
+        {showMoreFilters ? 'View less filters ▲' : 'View more filters ▼'}
+      </button>
+
+      {/* More Filters Section */}
+      {showMoreFilters && (
+        <div className="more-filters">
+          {/* Starting from date */}
+          <div className="filter-group">
+            <label className="filter-label">Starting from (or after)</label>
+            <input 
+              type="date" 
+              className="filter-input"
+              placeholder="Choose date"
+            />
+          </div>
+
+          {/* Max duration */}
+          <div className="filter-group">
+            <label className="filter-label">Max. duration (months)</label>
+            <select className="filter-input">
+              <option value="">Choose duration</option>
+              <option value="1">1 Month</option>
+              <option value="2">2 Months</option>
+              <option value="3">3 Months</option>
+              <option value="4">4 Months</option>
+              <option value="5">5 Months</option>
+              <option value="6">6 Months</option>
+            </select>
+          </div>
+
+          {/* Internships with job offer */}
+          <div className="filter-group">
+            <label className="filter-checkbox with-info">
+              <div className="checkbox-content">
+                <input
+                  type="checkbox"
+                  checked={filters.withJobOffer || false}
+                  onChange={() => onFilterChange('withJobOffer', !filters.withJobOffer)}
+                />
+                <span>Internships with job offer</span>
+              </div>
+              <span className="info-icon" title="Internships with a pre-placement offer">ⓘ</span>
+            </label>
+          </div>
+
+          {/* Fast response */}
+          <div className="filter-group">
+            <label className="filter-checkbox with-info">
+              <div className="checkbox-content">
+                <input
+                  type="checkbox"
+                  checked={filters.fastResponse || false}
+                  onChange={() => onFilterChange('fastResponse', !filters.fastResponse)}
+                />
+                <span>Fast response</span>
+              </div>
+              <span className="info-icon" title="Employers respond within 24 hours">ⓘ</span>
+            </label>
+          </div>
+
+          {/* Early applicant */}
+          <div className="filter-group">
+            <label className="filter-checkbox with-info">
+              <div className="checkbox-content">
+                <input
+                  type="checkbox"
+                  checked={filters.earlyApplicant || false}
+                  onChange={() => onFilterChange('earlyApplicant', !filters.earlyApplicant)}
+                />
+                <span>Early applicant</span>
+              </div>
+              <span className="info-icon" title="Be among the first 100 applicants">ⓘ</span>
+            </label>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };
